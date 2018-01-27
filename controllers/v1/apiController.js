@@ -531,17 +531,54 @@ exports.getApiInfo = function(req, res){
 	var cycle_name = req.params.cycle;
 	console.log(cycle_name);
 	var cycleID;
-	if(cycle_name == "gdaxbinance"){
-		cycleID = 1;
-	}else if(cycle_name == "binancegdax"){
-		cycleID = 2;
-	}else{
-		res.send({"status":"400","reason":"cycle not given"});
+
+	function resultArray(name, time, prices){
+		this.name = name;
+		this.time = time;
+		this.prices = prices;
 	}
+
+	var apiArray = [];
 
 	async.waterfall([
 		function(cb){
-			
+			if(cycle_name == "gdaxbinance"){
+				cycleID = 1;
+				cb();
+			}else if(cycle_name == "binancegdax"){
+				cycleID = 2;
+				cb();
+			}else{
+				res.send({"status":"400","reason":"cycle not given"});
+			}
+		},
+		function(cb){
+			priceModel.getCycleSpecificInfo(cycleID, function(err, result){
+				if(err){
+					cb(err);
+				}else{
+					cb(null, result);
+				}
+			})
+		}, function(array, cb){
+			var completion = array.length;
+			array.forEach(function(item){
+				priceModel.getCycleSpecificDetailInfo(item['id'], function(err, result){
+					if(err){
+						cb(err);
+					}else{
+						var rez = new resultArray(cycle_name, item['cycle_time'], result);
+						apiArray.push(rez)
+						completion--;
+						if(completion == 0){
+							cb(null, apiArray);
+						}
+					}
+				})
+			})
+		}, function(array, cb){
+			console.log('Smooth');
+			res.send({"status":"200","data":array});
 		}
 	], function(err){
 		console.log('There was an error in the getApiInfo method');

@@ -135,3 +135,22 @@ exports.deleteDataFromADay = function(callback){
   //   else callback(null, result);
   // });
 }
+
+exports.getCycleSpecificInfo = function(id, callback){
+  var sql = 'SELECT id, cycle_time FROM transaction_cycle_spread WHERE cycle_id = ? ORDER BY cycle_time DESC';
+  var sqlParams = [id]
+  mysql.query(sql,sqlParams, function(err, result){
+    if (err) console.log(err);
+    else callback(null, result);
+  });
+}
+
+exports.getCycleSpecificDetailInfo = function(id, callback){
+  var sql = 'SELECT cycle_title, cycle_price_spread FROM transaction_spread_detail WHERE cycle_spread_time_id = ?';
+  var sqlParams = [id]
+  mysql.query(sql,sqlParams, function(err, result){
+    if (err) console.log(err);
+    else callback(null, result);
+  });
+}
+
