@@ -561,22 +561,27 @@ exports.getApiInfo = function(req, res){
 				}
 			})
 		}, function(array, cb){
-			var completion = array.length;
-			array.forEach(function(item){
-				priceModel.getCycleSpecificDetailInfo(item['id'], function(err, result){
-					if(err){
-						cb(err);
-					}else{
-						var rez = new resultArray(cycle_name, item['cycle_time'], result);
-						apiArray.push(rez)
-						completion--;
-						if(completion == 0){
-							cb(null, apiArray);
+			if(array.length > 0){
+				var completion = array.length;
+				array.forEach(function(item){
+					priceModel.getCycleSpecificDetailInfo(item['id'], function(err, result){
+						if(err){
+							cb(err);
+						}else{
+							var rez = new resultArray(cycle_name, item['cycle_time'], result);
+							apiArray.push(rez)
+							completion--;
+							if(completion == 0){
+								cb(null, apiArray);
+							}
 						}
-					}
+					})
 				})
-			})
+			}else{
+				res.send({"status":"401","reason":"no data available"});
+			}
 		}, function(array, cb){
+
 			console.log('Smooth');
 			res.send({"status":"200","data":array});
 		}
