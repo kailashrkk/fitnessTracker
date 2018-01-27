@@ -2,7 +2,7 @@ var priceModel = require('../../models/v1/priceModel.js');
 var coinModel = require('../../models/v1/coinModel.js');
 var xcModel = require('../../models/v1/exchangeModel.js');
 var async = require('async');
-//var request = require('request');
+var request = require('request');
 
 exports.getApiInfoAndUpdateDB = function () {
 	console.log('IN');
@@ -480,7 +480,7 @@ function gdaxApi(symbol, cb){
 	    cb(null, info['price']);
 	  }
 	}
-	//request(options, callback);
+	request(options, callback);
 }
 
 function binanceApi(symbol, cb){
@@ -499,7 +499,7 @@ function binanceApi(symbol, cb){
 	    cb(null, info['price']);
 	  }
 	}
-	//request(options, callback);
+	request(options, callback);
 }
 
 function bitsoApi(symbol, cb){
@@ -524,7 +524,7 @@ function bitsoApi(symbol, cb){
 	    })
 	  }
 	}
-	//request(options, callback);
+	request(options, callback);
 }
 
 exports.getApiInfo = function(req, res){
