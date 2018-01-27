@@ -1,0 +1,474 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Lab: Template for performance testing Redis and RDS **WARNING** You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters" : {
+
+    "RedisClusterNodeType" : {
+      "Description" : "The compute and memory capacity of the nodes in the Redis Cluster",
+      "Type" : "String",
+      "Default" : "cache.m4.xlarge",
+      "AllowedValues" : [ "cache.r3.xlarge", "cache.m4.xlarge" ],
+      "ConstraintDescription" : "must select a valid Cache Node type."
+    },
+
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the EC2 instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Default" : "reinvent",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+
+    "EC2InstanceType" : {
+      "Description" : "EC2 instance type",
+      "Type" : "String",
+      "Default" : "c4.4xlarge",
+      "AllowedValues" : [  "c4.4xlarge" ],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+
+    "SSHLocation" : {
+      "Description" : "The IP address range that can be used to SSH to the EC2 instance",
+      "Type": "String",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+
+    "DBUser": {
+      "Description": "The database admin account username",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters.",
+      "Default": "databaseadmin"
+    },
+    "DBPassword": {
+      "NoEcho": "true",
+      "Description": "The database admin account password",
+      "Type": "String",
+      "MinLength": "8",
+      "MaxLength": "41",
+      "AllowedPattern": "[a-zA-Z0-9]*",
+      "ConstraintDescription": "must contain only alphanumeric characters and be 8-41 chars.",
+      "Default": "reinvent"
+    },
+
+    "DBInstanceType" : {
+      "Description" : "DB instance type",
+      "Type" : "String",
+      "Default" : "db.m4.xlarge",
+      "AllowedValues" : [ "db.m4.xlarge" ],
+      "ConstraintDescription" : "must be a valid DB instance type."
+    },
+
+    "DBEngine" : {
+      "Description" : "DB Engine type",
+      "Type" : "String",
+      "Default" : "MariaDB",
+      "AllowedValues" : [ "MariaDB" ],
+      "ConstraintDescription" : "must be a valid DB instance type."
+    }
+
+  },
+
+  "Mappings" : {
+
+    "RegionMap" : {
+      "us-east-1"        : {"AMI" : "ami-6869aa05"},
+      "us-west-2"        : {"AMI" : "ami-7172b611"},
+      "us-west-1"        : {"AMI" : "ami-31490d51"},
+      "eu-west-1"        : {"AMI" : "ami-f9dd458a"},
+      "eu-central-1"     : {"AMI" : "ami-ea26ce85"},
+      "ap-northeast-1"   : {"AMI" : "ami-374db956"},
+      "ap-northeast-2"   : {"AMI" : "ami-2b408b45"},
+      "ap-southeast-1"   : {"AMI" : "ami-a59b49c6"},
+      "ap-southeast-2"   : {"AMI" : "ami-dc361ebf"},
+      "sa-east-1"        : {"AMI" : "ami-6dd04501"}
+    },
+
+    "SubnetConfig" : {
+      "VPC"     : { "CIDR" : "10.0.0.0/16" },
+      "Public1"  : { "CIDR" : "10.0.0.0/24" },
+      "Private1"  : { "CIDR" : "10.0.2.0/24" },
+      "Private2"  : { "CIDR" : "10.0.3.0/24" }
+     }
+
+  },
+
+  "Resources" : {
+
+  "VPC" : {
+    "Type" : "AWS::EC2::VPC",
+    "Properties" : {
+      "EnableDnsSupport" : "true",
+      "EnableDnsHostnames" : "true",
+      "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "VPC", "CIDR" ]},
+      "Tags" : [
+        { "Key" : "Name", "Value" : "reinvent" },
+        { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+        { "Key" : "Network", "Value" : "Public" }
+      ]
+    }
+  },
+
+  "PublicSubnet1" : {
+    "Type" : "AWS::EC2::Subnet",
+    "Properties" : {
+      "AvailabilityZone" : {
+        "Fn::Select" : [ "0", { "Fn::GetAZs" : "" } ]
+      },
+      "VpcId" : { "Ref" : "VPC" },
+      "MapPublicIpOnLaunch" : true,
+      "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public1", "CIDR" ]},
+      "Tags" : [
+        { "Key" : "Name", "Value" : "Public1" },
+        { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+        { "Key" : "Network", "Value" : "Public" }
+      ]
+    }
+  },
+
+  "PrivateSubnet1" : {
+    "Type" : "AWS::EC2::Subnet",
+    "Properties" : {
+    "AvailabilityZone" : {
+      "Fn::Select" : [ "0", { "Fn::GetAZs" : "" } ]
+    },
+      "VpcId" : { "Ref" : "VPC" },
+      "MapPublicIpOnLaunch" : true,
+      "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private1", "CIDR" ]},
+      "Tags" : [
+        { "Key" : "Name", "Value" : "Private1" },
+        { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+        { "Key" : "Network", "Value" : "Private" }
+      ]
+    }
+  },
+
+  "PrivateSubnet2" : {
+    "Type" : "AWS::EC2::Subnet",
+    "Properties" : {
+    "AvailabilityZone" : {
+      "Fn::Select" : [ "1", { "Fn::GetAZs" : "" } ]
+    },
+      "VpcId" : { "Ref" : "VPC" },
+      "MapPublicIpOnLaunch" : true,
+      "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private2", "CIDR" ]},
+      "Tags" : [
+        { "Key" : "Name", "Value" : "Private2" },
+        { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+        { "Key" : "Network", "Value" : "Private" }
+      ]
+    }
+  },
+
+  "ElastiCacheSubnetGroup" : {
+      "Type" : "AWS::ElastiCache::SubnetGroup",
+      "Properties" : {
+          "Description" : "Cache Subnet Group",
+          "SubnetIds" : [ { "Ref" : "PrivateSubnet1" } ]
+      }
+  },
+
+  "RDSSubnetGroup" : {
+      "Type" : "AWS::RDS::DBSubnetGroup",
+      "Properties" : {
+          "DBSubnetGroupDescription" : "DB Subnet Group",
+          "SubnetIds" : [ { "Ref" : "PrivateSubnet1" }, {"Ref" :"PrivateSubnet2" } ]
+      }
+  },
+
+
+  "InternetGateway" : {
+    "Type" : "AWS::EC2::InternetGateway",
+    "Properties" : {
+      "Tags" : [
+        { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+        { "Key" : "Network", "Value" : "Public" }
+      ]
+    }
+  },
+
+  "GatewayToInternet" : {
+     "Type" : "AWS::EC2::VPCGatewayAttachment",
+     "Properties" : {
+       "VpcId" : { "Ref" : "VPC" },
+       "InternetGatewayId" : { "Ref" : "InternetGateway" }
+     }
+  },
+
+
+  "PublicRouteTable" : {
+    "Type" : "AWS::EC2::RouteTable",
+    "Properties" : {
+      "VpcId" : { "Ref" : "VPC" },
+      "Tags" : [
+        { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+        { "Key" : "Network", "Value" : "Public" }
+      ]
+    }
+  },
+
+  "PublicRoute" : {
+    "Type" : "AWS::EC2::Route",
+    "DependsOn" : "GatewayToInternet",
+    "Properties" : {
+      "RouteTableId" : { "Ref" : "PublicRouteTable" },
+      "DestinationCidrBlock" : "0.0.0.0/0",
+      "GatewayId" : { "Ref" : "InternetGateway" }
+    }
+  },
+
+  "PublicSubnetRouteTableAssociation1" : {
+    "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+    "Properties" : {
+      "SubnetId" : { "Ref" : "PublicSubnet1" },
+      "RouteTableId" : { "Ref" : "PublicRouteTable" }
+    }
+  },
+
+    "RedisClusterSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+      "GroupName" : "reinvent-EC-SG",
+      "VpcId" : { "Ref" : "VPC" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp", "FromPort": "6379", "ToPort": "6379", "SourceSecurityGroupId": {"Ref": "EC2InstanceSecurityGroup"}
+          }
+        ],
+        "GroupDescription": "reinvent - ElastiCache Redis Security Group"
+      }
+    },
+
+    "DatabaseSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+      "GroupName" : "reinvent-RDS-SG",
+      "VpcId" : { "Ref" : "VPC" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp", "FromPort": "3306", "ToPort": "3306", "SourceSecurityGroupId": {"Ref": "EC2InstanceSecurityGroup"}
+          }
+        ],
+        "GroupDescription": "reinvent - Amazon RDS Security Group"
+      }
+    },
+
+    "EC2InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+      "VpcId" : { "Ref" : "VPC" },
+       "GroupName" : "reinvent-App-SG",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"} },
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" }
+        ],
+        "GroupDescription": "reinvent - Test Application Security Group"
+      }
+    },
+
+    "RedisCluster" : {
+      "Type": "AWS::ElastiCache::CacheCluster",
+      "Properties": {
+        "CacheSubnetGroupName"    : { "Ref" : "ElastiCacheSubnetGroup" },
+        "CacheNodeType"           : { "Ref" : "RedisClusterNodeType" },
+        "ClusterName"             : "redistest",
+        "VpcSecurityGroupIds"     : [{"Fn::GetAtt": [ "RedisClusterSecurityGroup", "GroupId"]}],
+        "Engine"                  : "redis",
+        "NumCacheNodes"           : "1"
+      }
+    },
+
+    "RDS": {
+    "Type": "AWS::RDS::DBInstance",
+    "DependsOn": "DatabaseSecurityGroup",
+    "Properties": {
+      "AllocatedStorage": "5",
+      "DBInstanceClass": {  "Ref": "DBInstanceType"   },
+      "DBSubnetGroupName": {  "Ref": "RDSSubnetGroup"   },
+      "MultiAZ" : "false",
+      "Engine": {  "Ref": "DBEngine"   },
+      "MasterUsername": {  "Ref": "DBUser"   },
+      "MasterUserPassword": {
+        "Ref": "DBPassword"
+      },
+      "VPCSecurityGroups": [ {  "Ref": "DatabaseSecurityGroup"   } ]
+    }
+  },
+
+    "EC2Instance": {
+      "Type" : "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "configSets": {
+            "default": [ "enablerepos", "configuration" ]
+          },
+          "enablerepos": {
+            "commands": {
+              "001": { "command": "yum-config-manager --enable epel" }
+            }
+          },
+          "configuration": {
+            "packages" : {
+               "yum" : {
+                 "gcc"       : [],
+                 "make"      : [],
+                 "httpd24"   : [],
+                 "java-1.8.0-openjdk.x86_64"  : []
+               }
+             },
+             "sources" : {
+                "/home/ec2-user" : "https://s3-eu-west-1.amazonaws.com/ec-reinvent-2017/demo.zip"
+                   },
+              "files" : {
+                "/usr/local/bin/redis-stable.sh" : {
+                 "content" : { "Fn::Join" : ["", [
+                   "#!/bin/bash\n",
+                   "wget https://s3-eu-west-1.amazonaws.com/ec-reinvent-2017/redis-3.2.0.tar.gz\n",
+                   "tar xvzf redis-3.2.0.tar.gz\n",
+                   "cd redis-3.2.0\n",
+                   "make distclean\n",
+                   "make\n"
+                 ]]},
+                 "mode"    : "000755",
+                 "owner"   : "root",
+                 "group"   : "root"
+               },
+              "/etc/cfn/cfn-hup.conf" : {
+                 "content" : { "Fn::Join" : ["", [
+                   "[main]\n",
+                   "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                   "region=", { "Ref" : "AWS::Region" }, "\n"
+                 ]]},
+                 "mode"    : "000400",
+                 "owner"   : "root",
+                 "group"   : "root"
+               },
+
+               "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                 "content": { "Fn::Join" : ["", [
+                   "[cfn-auto-reloader-hook]\n",
+                   "triggers=post.update\n",
+                   "path=Resources.EC2Instance.Metadata.AWS::CloudFormation::Init\n",
+                   "action=/opt/aws/bin/cfn-init -v ",
+                   "         --stack ", { "Ref" : "AWS::StackName" },
+                   "         --resource EC2InstanceInstance ",
+                   "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                   "runas=root\n"
+                 ]]}
+               }
+             },
+             "commands" : {
+               "01-install-redis-cli" : {
+                 "command" : "/usr/local/bin/redis-stable.sh"
+               },
+               "02-adjust-user-perms" : {
+                 "command" : "cd /home/ec2-user && chown -R ec2-user:ec2-user ."
+               }
+             },
+             "services" : {
+               "sysvinit" : {
+                 "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
+                               "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
+               }
+              }
+            }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+        "InstanceType"   : { "Ref" : "EC2InstanceType" },
+        "KeyName"        : { "Ref" : "KeyName" },
+        "Tags"           : [ { "Key" : "Application", "Value" : "reinvent Demo" } ],
+        "NetworkInterfaces": [ {
+             "AssociatePublicIpAddress": "true",
+             "DeviceIndex": "0",
+             "GroupSet": [{ "Ref" : "EC2InstanceSecurityGroup" }],
+             "SubnetId": { "Ref" : "PublicSubnet1" }
+           } ],
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -xe\n",
+          "yum update -y aws-cfn-bootstrap\n",
+          "# Install Jmeter\n",
+          "cd /home/ec2-user/\n",
+          "curl https://s3-eu-west-1.amazonaws.com/ec-reinvent-2017/apache-jmeter-3.2.tgz -o apache-jmeter-3.2.tgz\n",
+          "tar xzf apache-jmeter-3.2.tgz\n",
+          "# Setup the system\n",
+          "/opt/aws/bin/cfn-init -v ",
+          "         --stack ", { "Ref" : "AWS::StackName" },
+          "         --resource EC2Instance ",
+          "         --region ", { "Ref" : "AWS::Region" }, "\n",
+          "# Signal the status of cfn-init\n",
+          "/opt/aws/bin/cfn-signal -e $? ",
+          "         --stack ", { "Ref" : "AWS::StackName" },
+          "         --resource EC2Instance ",
+          "         --region ", { "Ref" : "AWS::Region" }, "\n",
+          "# Setup Jmeter\n",
+          "cd /home/ec2-user/\n",
+          "chmod u+rw,g+rw,o+rw *\n",
+          "mv *.jmx user.properties apache-jmeter-3.2/bin\n",
+          "mv CUSTOMER.sql apache-jmeter-3.2/lib/junit\n",
+          "mv db.properties apache-jmeter-3.2/lib/junit\n",
+          "mv LoadTest.jar apache-jmeter-3.2/lib/junit\n",
+          "rm apache-jmeter-3.2.tgz redis-3.2.0.tar.gz\n",
+          "# Setup Apache\n",
+          "sudo service httpd start\n",
+          "sudo chkconfig httpd on\n",
+          "cd /var/www && chown -R ec2-user:ec2-user .\n",
+          "# Updating to Java 8\n",
+          "sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n",
+          "sudo alternatives --remove java /usr/lib/jvm/jre-1.7.0-openjdk.x86_64/bin/java\n"
+          ]]}}
+      },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT20M"
+        }
+      }
+    }
+  },
+
+  "Outputs" : {
+    "EC2IP" : {
+      "Description" : "Application URL",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ]}
+    },
+    "RDSEndpoint" : {
+      "Description" : "RDS Endpoint",
+      "Value" : { "Fn::GetAtt" : [ "RDS", "Endpoint.Address" ]}
+    },
+    "RDSPort" : {
+      "Description" : "RDS Port",
+      "Value" : { "Fn::GetAtt" : [ "RDS", "Endpoint.Port" ]}
+    },
+    "ElastiCacheRedisEndpoint" : {
+      "Description" : "ElastiCache Endpoint",
+      "Value" : { "Fn::GetAtt" : [ "RedisCluster", "RedisEndpoint.Address" ]}
+    },
+    "ElastiCachePort" : {
+      "Description" : "ElastiCache Port",
+      "Value" : { "Fn::GetAtt" : [ "RedisCluster", "RedisEndpoint.Port" ]}
+    },
+    "VPCId" : {
+      "Description" : "reinvent VPCId ",
+      "Value" :  { "Ref" : "VPC" }
+    },
+    "AppSG" : {
+      "Description" : "Application SecurityGroup Id ",
+      "Value" :  { "Ref" : "EC2InstanceSecurityGroup" }
+    },
+    "ElastiCacheSG" : {
+      "Description" : "ElastiCache SecurityGroup Id",
+      "Value" :  { "Ref" : "RedisClusterSecurityGroup" }
+    },
+    "RDSSG" : {
+      "Description" : "RDS SecurityGroup Id ",
+      "Value" :  { "Ref" : "DatabaseSecurityGroup" }
+    },
+
+  }
+}
