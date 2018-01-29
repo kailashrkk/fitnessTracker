@@ -252,7 +252,7 @@ exports.getApiInfoAndUpdateDB = function () {
 		}, function(apiArray, GBID, BGID, done){
 			console.log(GBID);
 			console.log(BGID);
-			priceModel.enterdetails(GBID,"calc_G_B_eth_btc",calc_G_B_eth_btc, function(err, result){
+			priceModel.enterdetails(GBID,"eth_btc",calc_G_B_eth_btc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -260,7 +260,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_eth_ltc",calc_G_B_eth_ltc, function(err, result){
+			priceModel.enterdetails(GBID,"eth_ltc",calc_G_B_eth_ltc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -268,7 +268,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_eth_bch",calc_G_B_eth_bch, function(err, result){
+			priceModel.enterdetails(GBID,"eth_bch",calc_G_B_eth_bch, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -276,7 +276,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_btc_eth",calc_G_B_btc_eth, function(err, result){
+			priceModel.enterdetails(GBID,"btc_eth",calc_G_B_btc_eth, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -284,7 +284,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_btc_bch",calc_G_B_eth_bch, function(err, result){
+			priceModel.enterdetails(GBID,"btc_bch",calc_G_B_eth_bch, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -292,7 +292,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_btc_ltc",calc_G_B_btc_ltc, function(err, result){
+			priceModel.enterdetails(GBID,"btc_ltc",calc_G_B_btc_ltc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -300,7 +300,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		},function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_ltc_btc",calc_G_B_ltc_btc, function(err, result){
+			priceModel.enterdetails(GBID,"ltc_btc",calc_G_B_ltc_btc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -308,7 +308,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_ltc_bch",calc_G_B_ltc_bch, function(err, result){
+			priceModel.enterdetails(GBID,"ltc_bch",calc_G_B_ltc_bch, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -316,7 +316,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_ltc_eth",calc_G_B_ltc_eth, function(err, result){
+			priceModel.enterdetails(GBID,"ltc_eth",calc_G_B_ltc_eth, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -324,7 +324,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		},function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_bch_btc",calc_G_B_bch_btc, function(err, result){
+			priceModel.enterdetails(GBID,"bch_btc",calc_G_B_bch_btc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -332,7 +332,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_bch_ltc",calc_G_B_bch_ltc, function(err, result){
+			priceModel.enterdetails(GBID,"bch_ltc",calc_G_B_bch_ltc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -340,7 +340,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(GBID,"calc_G_B_bch_eth",calc_G_B_bch_eth, function(err, result){
+			priceModel.enterdetails(GBID,"bch_eth",calc_G_B_bch_eth, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -350,7 +350,7 @@ exports.getApiInfoAndUpdateDB = function () {
 		}, function(apiArray, GBID, BGID, done){
 			console.log(GBID);
 			console.log(BGID);
-			priceModel.enterdetails(BGID,"calc_B_G_eth_btc",calc_B_G_eth_btc, function(err, result){
+			priceModel.enterdetails(BGID,"eth_btc",calc_B_G_eth_btc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -358,7 +358,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_eth_ltc",calc_B_G_eth_ltc, function(err, result){
+			priceModel.enterdetails(BGID,"eth_ltc",calc_B_G_eth_ltc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -366,7 +366,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_eth_bch",calc_B_G_eth_bch, function(err, result){
+			priceModel.enterdetails(BGID,"eth_bch",calc_B_G_eth_bch, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -374,7 +374,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_btc_eth",calc_B_G_btc_eth, function(err, result){
+			priceModel.enterdetails(BGID,"btc_eth",calc_B_G_btc_eth, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -382,7 +382,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_btc_bch",calc_B_G_btc_bch, function(err, result){
+			priceModel.enterdetails(BGID,"btc_bch",calc_B_G_btc_bch, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -390,7 +390,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_btc_ltc",calc_B_G_btc_ltc, function(err, result){
+			priceModel.enterdetails(BGID,"btc_ltc",calc_B_G_btc_ltc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -398,7 +398,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		},function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_ltc_btc",calc_B_G_ltc_btc, function(err, result){
+			priceModel.enterdetails(BGID,"ltc_btc",calc_B_G_ltc_btc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -406,7 +406,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_ltc_bch",calc_B_G_ltc_bch, function(err, result){
+			priceModel.enterdetails(BGID,"ltc_bch",calc_B_G_ltc_bch, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -414,7 +414,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_ltc_eth",calc_B_G_ltc_eth, function(err, result){
+			priceModel.enterdetails(BGID,"ltc_eth",calc_B_G_ltc_eth, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -422,7 +422,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		},function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_bch_btc",calc_B_G_bch_btc, function(err, result){
+			priceModel.enterdetails(BGID,"bch_btc",calc_B_G_bch_btc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -430,7 +430,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_bch_ltc",calc_B_G_bch_ltc, function(err, result){
+			priceModel.enterdetails(BGID,"bch_ltc",calc_B_G_bch_ltc, function(err, result){
 				if(err){
 					callback(err);
 				}else{
@@ -438,7 +438,7 @@ exports.getApiInfoAndUpdateDB = function () {
 				}
 			})
 		}, function(apiArray, GBID, BGID, done){
-			priceModel.enterdetails(BGID,"calc_B_G_bch_eth",calc_B_G_bch_eth, function(err, result){
+			priceModel.enterdetails(BGID,"bch_eth",calc_B_G_bch_eth, function(err, result){
 				if(err){
 					callback(err);
 				}else{
