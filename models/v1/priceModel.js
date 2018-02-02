@@ -31,7 +31,9 @@ exports.getAllSpreadDates = function(callback){
     if (err){
      console.log(err);
     }else {
-      console.log(result);
+      //console.log(result);
+      console.log('model');
+      console.log(result.length);
      callback(null, result);
     }
   });

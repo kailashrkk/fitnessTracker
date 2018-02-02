@@ -4,6 +4,7 @@ var xcModel = require('../../models/v1/exchangeModel.js');
 var async = require('async');
 var request = require('request');
 var moment = require('moment');
+var momenttz = require('moment-timezone');
 
 exports.getApiInfoAndUpdateDB = function () {
 	console.log('IN');
@@ -604,17 +605,18 @@ exports.getAllDates = function(req, res){
 					if(result.length > 0){
 						callback(null, result);
 					}else{
-						console.log('IN FALSE');
+						//console.log('IN FALSE');
 						callback(null, false);
 					}
 				}
 			})
 		}, function(dateArray, callback){
 			if(dateArray.length > 0){
+				console.log(dateArray.length);
 				dateArray.forEach(function(elem){
 					console.log('The date is ');
-					console.log(elem['cycle_time']);
-					var time = moment.unix(elem['cycle_time']/1000).timezone('America/New_York');
+					var time = momenttz.unix(elem['cycle_time']/1000);
+					var timer = time.tz('America/New_York').format('ha z'); 
 					console.log(time);
 				})
 			}
