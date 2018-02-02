@@ -7,4 +7,8 @@ router.get('/:cycle', function(req, res, next) {
   apiController.getApiInfo(req,res);
 });
 
+router.get('/test', function(req, res, next) {
+  apiController.getAllDates(req,res);
+});
+
 module.exports = router;

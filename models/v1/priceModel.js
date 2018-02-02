@@ -25,6 +25,18 @@ exports.getAllDbData = function(callback){
   });
 }
 
+exports.getAllSpreadDates = function(callback){
+  var sql = 'SELECT cycle_time FROM transaction_cycle_spread ORDER BY cycle_time DESC';
+  mysql.query(sql, function(err, result){
+    if (err){
+     console.log(err);
+    }else {
+      console.log(result);
+     callback(null, result);
+    }
+  });
+}
+
 exports.enterGBTimeStampAndGetID = function(time, callback) {
 	var sql = 'insert into transaction_cycle_spread(cycle_time, cycle_id) values(?,?)';
 	var sqlParams = [time, 1];

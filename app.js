@@ -46,10 +46,10 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-cron.schedule('*/5 * * * *', function(){
-  console.log('every five minutes');
-  api.getApiInfoAndUpdateDB();
-});
+// cron.schedule('*/5 * * * *', function(){
+//   console.log('every five minutes');
+//   api.getApiInfoAndUpdateDB();
+// });
 
 // cron.schedule('*/15 * * * * *', function(){
 // 	console.log('every fifteen seconds');

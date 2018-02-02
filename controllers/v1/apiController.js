@@ -3,6 +3,7 @@ var coinModel = require('../../models/v1/coinModel.js');
 var xcModel = require('../../models/v1/exchangeModel.js');
 var async = require('async');
 var request = require('request');
+var moment = require('moment');
 
 exports.getApiInfoAndUpdateDB = function () {
 	console.log('IN');
@@ -588,5 +589,37 @@ exports.getApiInfo = function(req, res){
 	], function(err){
 		console.log('There was an error in the getApiInfo method');
 		res.send({"status":"500","reason":"error in getApiInfo method, report to dev"});
+	})
+}
+
+exports.getAllDates = function(req, res){
+	async.waterfall([
+		function(callback){
+			console.log('INNER');
+			priceModel.getAllSpreadDates(function(err, result){
+				if(err){
+					callback(err);
+					console.log('IN ERR');
+				}else{
+					if(result.length > 0){
+						callback(null, result);
+					}else{
+						console.log('IN FALSE');
+						callback(null, false);
+					}
+				}
+			})
+		}, function(dateArray, callback){
+			if(dateArray.length > 0){
+				dateArray.forEach(function(elem){
+					console.log('The date is ');
+					console.log(elem['cycle_time']);
+					var time = moment.unix(elem['cycle_time']/1000).timezone('America/New_York');
+					console.log(time);
+				})
+			}
+		}
+	],function(err){
+		console.log('There was an error');
 	})
 }
